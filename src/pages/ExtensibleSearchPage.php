@@ -24,7 +24,7 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Queries\SQLSelect;
 use SilverStripe\ORM\Search\FulltextSearchable;
-use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 use SilverStripe\Security\Permission;
 use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\ArrayData;
@@ -350,7 +350,7 @@ class ExtensibleSearchPage extends \Page {
 
 			// Appropriately restrict the approval functionality.
 
-			$user = Member::currentUserID();
+			$user = Security::getCurrentUser();
 			if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS')) {
 				Requirements::javascript('nglasl/silverstripe-extensible-search: client/javascript/extensible-search-approval.js');
 			}
@@ -484,7 +484,7 @@ class ExtensibleSearchPage extends \Page {
 
 		$history = $this->History();
 		$query = new SQLSelect(
-			"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS Results",
+			"Term, COUNT(*) AS Frequency, ((COUNT(*) * 100.00) / {$history->count()}) AS FrequencyPercentage, AVG(Time) AS AverageTimeTaken, (Results > 0) AS HasResults",
 			'ExtensibleSearch',
 			"ExtensibleSearchPageID = {$this->ID}",
 			array(
@@ -493,7 +493,7 @@ class ExtensibleSearchPage extends \Page {
 			),
 			array(
 				'Term',
-				'Results'
+				'HasResults'
 			)
 		);
 
@@ -506,7 +506,7 @@ class ExtensibleSearchPage extends \Page {
 			);
 			$result->FrequencyPercentage = sprintf('%.2f %%', $result->FrequencyPercentage);
 			$result->AverageTimeTaken = sprintf('%.5f', $result->AverageTimeTaken);
-			$result->Results = $result->Results ? _t('EXTENSIBLE_SEARCH.TRUE', 'true') : _t('EXTENSIBLE_SEARCH.FALSE', 'false');
+			$result->Results = $result->HasResults ? _t('EXTENSIBLE_SEARCH.TRUE', 'true') : _t('EXTENSIBLE_SEARCH.FALSE', 'false');
 			$analytics->push($result);
 		}
 		return $analytics;

@@ -4,7 +4,7 @@ namespace nglasl\extensible;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
-use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 use SilverStripe\Security\Permission;
 
 /**
@@ -43,7 +43,7 @@ class ExtensibleSearchAPI extends Controller {
 
 		// Restrict this functionality appropriately.
 
-		$user = Member::currentUserID();
+		$user = Security::getCurrentUser();
 		if(Permission::checkMember($user, 'EXTENSIBLE_SEARCH_SUGGESTIONS') && ($status = $this->service->toggleSuggestionApproved($request->postVar('suggestion')))) {
 
 			// Display an appropriate CMS notification.
